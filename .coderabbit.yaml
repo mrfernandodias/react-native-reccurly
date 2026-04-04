@@ -1,0 +1,18 @@
+language: pt-BR
+
+reviews:
+  profile: chill
+  path_instructions:
+    - path: "app/**/*.{ts,tsx}"
+      instructions: |
+        Foque em bugs de navegação, uso incorreto de hooks, regressões de UI e problemas de tipagem.
+    - path: "constants/**/*.{ts,tsx}"
+      instructions: |
+        Foque em consistência de nomes, tipagem e dados não utilizados.
+  pre_merge_checks:
+    docstrings:
+      mode: off
+
+code_generation:
+  docstrings:
+    language: en-US

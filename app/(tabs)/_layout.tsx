@@ -7,6 +7,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const tabBar = components.tabBar;
 
+/**
+ * Renderiza a navegação principal por abas do app.
+ * Ajusta o posicionamento e o tamanho da tab bar com base na safe area do dispositivo.
+ */
 const TabLayout = () => {
   const insets = useSafeAreaInsets();
 
@@ -36,7 +40,10 @@ const TabLayout = () => {
           borderTopWidth: 0,
         },
         tabBarItemStyle: {
-          paddingVertical: tabBar.height / 2 - tabBar.iconFrame / 1.6,
+          paddingVertical: Math.max(
+            0,
+            tabBar.height / 2 - tabBar.iconFrame / 1.6,
+          ),
         },
         tabBarIconStyle: {
           width: tabBar.iconFrame,

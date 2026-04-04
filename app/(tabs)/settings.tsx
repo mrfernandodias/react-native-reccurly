@@ -1,15 +1,11 @@
-import { styled } from "nativewind";
-import React from "react";
+import { ScreenContainer } from "@/components/screen-container";
 import { Text } from "react-native";
-import { SafeAreaView as RNSafeAreaView } from "react-native-safe-area-context";
-
-const SafeAreaView = styled(RNSafeAreaView);
 
 const Settings = () => {
   return (
-    <SafeAreaView className="flex-1 bg-background p-5">
+    <ScreenContainer>
       <Text>Settings</Text>
-    </SafeAreaView>
+    </ScreenContainer>
   );
 };
 
