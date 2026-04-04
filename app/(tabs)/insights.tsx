@@ -1,11 +1,12 @@
+import { ScreenContainer } from "@/components/screen-container";
 import React from "react";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
 
 const Insights = () => {
   return (
-    <View>
+    <ScreenContainer>
       <Text>Insights</Text>
-    </View>
+    </ScreenContainer>
   );
 };
 

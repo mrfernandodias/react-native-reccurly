@@ -1,11 +1,12 @@
+import { ScreenContainer } from "@/components/screen-container";
 import React from "react";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
 
 const Subscriptions = () => {
   return (
-    <View>
+    <ScreenContainer>
       <Text>Subscriptions</Text>
-    </View>
+    </ScreenContainer>
   );
 };
 

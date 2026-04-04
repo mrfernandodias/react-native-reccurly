@@ -1,9 +1,10 @@
+import { ScreenContainer } from "@/components/screen-container";
 import { Link } from "expo-router";
-import { Text, View } from "react-native";
+import { Text } from "react-native";
 
 export default function App() {
   return (
-    <View className="flex-1 items-center justify-center bg-background">
+    <ScreenContainer>
       <Text className="text-xl font-bold text-success">
         Welcome to Nativewind!
       </Text>
@@ -40,6 +41,6 @@ export default function App() {
       >
         Claude Max Subscriptions
       </Link>
-    </View>
+    </ScreenContainer>
   );
 }
