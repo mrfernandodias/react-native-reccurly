@@ -14,8 +14,9 @@ export function formatCurrency(value: number, currency = "BRL") {
     }).format(value);
   } catch {
     const normalizedValue = Number.isFinite(value) ? value : 0;
-
-    return `R$ ${normalizedValue.toFixed(2).replace(".", ",")}`;
+    const currencySymbol =
+      currency === "BRL" ? "R$ " : currency === "USD" ? "$ " : currency + " ";
+    return `${currencySymbol}${normalizedValue.toFixed(2).replace(".", ",")}`;
   }
 }
 
@@ -38,7 +39,7 @@ export const formatSubscriptionDateTime = (value?: string): string => {
   if (!value) return "Not provided";
   const parsedDate = dayjs(value);
   return parsedDate.isValid()
-    ? parsedDate.format("MM/DD/YYYY")
+    ? parsedDate.format("DD/MM/YYYY")
     : "Not provided";
 };
 
@@ -56,5 +57,7 @@ export const formatSubscriptionDateTime = (value?: string): string => {
  */
 export const formatStatusLabel = (value?: string): string => {
   if (!value) return "Unknown";
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  const firstChar = value.charAt(0).toUpperCase();
+  const rest = value.slice(1).toLowerCase();
+  return firstChar + rest;
 };

@@ -6,6 +6,22 @@ import {
 import clsx from "clsx";
 import { Image, Pressable, Text, View } from "react-native";
 
+interface SubscriptionCardProps {
+  name: string;
+  price: number;
+  color?: string;
+  icon: any;
+  billing: string;
+  category?: string;
+  plan?: string;
+  renewalDate?: string;
+  expanded: boolean;
+  onPress: () => void;
+  paymentMethod?: string;
+  startDate?: string;
+  status?: string;
+}
+
 const SubscriptionCard = ({
   name,
   price,
@@ -83,7 +99,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {startDate ? formatSubscriptionDateTime(startDate) : ""}
+                  {startDate ? formatSubscriptionDateTime(startDate) : "N/A"}
                 </Text>
               </View>
             </View>
@@ -95,7 +111,9 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {renewalDate ? formatSubscriptionDateTime(renewalDate) : ""}
+                  {renewalDate
+                    ? formatSubscriptionDateTime(renewalDate)
+                    : "N/A"}
                 </Text>
               </View>
             </View>
@@ -107,7 +125,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {status ? formatStatusLabel(status) : ""}
+                  {status ? formatStatusLabel(status) : "N/A"}
                 </Text>
               </View>
             </View>

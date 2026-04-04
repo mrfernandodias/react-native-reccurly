@@ -17,6 +17,46 @@ import { useState } from "react";
 
 import { FlatList, Image, Text, View } from "react-native";
 
+const HomeListHeader = () => (
+  <>
+    <View className="home-header">
+      <View className="home-user">
+        <Image source={images.avatar} className="home-avatar" />
+        <Text className="home-user-name">{HOME_USER.name}</Text>
+      </View>
+      <Image source={icons.add} className="home-add-icon" />
+    </View>
+
+    <View className="home-balance-card">
+      <Text className="home-balance-label">Balance</Text>
+      <View className="home-balance-row">
+        <Text className="home-balance-amount">
+          {formatCurrency(HOME_BALANCE.amount)}
+        </Text>
+        <Text className="home-balance-date">
+          {dayjs(HOME_BALANCE.nextRenewalDate).format("DD/MM")}
+        </Text>
+      </View>
+    </View>
+
+    <View className="mb-5">
+      <ListHeading title="Upcoming" />
+
+      <FlatList
+        data={UPCOMING_SUBSCRIPTIONS}
+        keyExtractor={(item) => item.id ?? item.name}
+        renderItem={({ item }) => <UpcomingSubscriptionCard {...item} />}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        className="home-upcoming-list"
+        ListEmptyComponent={<Text>No upcoming renewals yet. 🙁 </Text>}
+      />
+    </View>
+
+    <ListHeading title="All Subscriptions" />
+  </>
+);
+
 export default function App() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
@@ -24,47 +64,7 @@ export default function App() {
   return (
     <ScreenContainer>
       <FlatList
-        ListHeaderComponent={() => (
-          <>
-            <View className="home-header">
-              <View className="home-user">
-                <Image source={images.avatar} className="home-avatar" />
-                <Text className="home-user-name">{HOME_USER.name}</Text>
-              </View>
-              <Image source={icons.add} className="home-add-icon" />
-            </View>
-
-            <View className="home-balance-card">
-              <Text className="home-balance-label">Balance</Text>
-              <View className="home-balance-row">
-                <Text className="home-balance-amount">
-                  {formatCurrency(HOME_BALANCE.amount)}
-                </Text>
-                <Text className="home-balance-date">
-                  {dayjs(HOME_BALANCE.nextRenewalDate).format("DD/MM")}
-                </Text>
-              </View>
-            </View>
-
-            <View className="mb-5">
-              <ListHeading title="Upcoming" />
-
-              <FlatList
-                data={UPCOMING_SUBSCRIPTIONS}
-                keyExtractor={(item) => item.name}
-                renderItem={({ item }) => (
-                  <UpcomingSubscriptionCard {...item} />
-                )}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                className="home-upcoming-list"
-                ListEmptyComponent={<Text>No upcoming renewals yet. 🙁 </Text>}
-              />
-            </View>
-
-            <ListHeading title="All Subscriptions" />
-          </>
-        )}
+        ListHeaderComponent={HomeListHeader}
         data={HOME_SUBSCRIPTIONS}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

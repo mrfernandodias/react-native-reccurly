@@ -7,7 +7,7 @@ export const tabs: AppTab[] = [
   { name: "settings", title: "Settings", icon: icons.setting },
 ];
 
-export const HOME_USER = {
+export const HOME_USER: { name: string } = {
   name: "Fernando | FDS Tech",
 };
 

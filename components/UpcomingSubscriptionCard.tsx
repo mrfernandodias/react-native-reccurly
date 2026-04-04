@@ -1,12 +1,27 @@
 import { formatCurrency } from "@/lib/utils";
 import { Image, Text, View } from "react-native";
 
+interface UpcomingSubscription {
+  id: string;
+  icon: any;
+  name: string;
+  price: number;
+  currency: string;
+  daysLeft: number;
+}
+
 const UpcomingSubscriptionCard = ({
   name,
   price,
   daysLeft,
   icon,
 }: UpcomingSubscription) => {
+  const getDaysLeftText = () => {
+    if (daysLeft > 1) return `${daysLeft} days left`;
+    if (daysLeft === 1) return "Last day!";
+    return "Expired!";
+  };
+
   return (
     <View className="upcoming-card">
       <View className="upcoming-row">
@@ -14,7 +29,7 @@ const UpcomingSubscriptionCard = ({
         <View>
           <Text className="upcoming-price">{formatCurrency(price)}</Text>
           <Text className="upcoming-meta" numberOfLines={1}>
-            {daysLeft > 1 ? `${daysLeft} days left` : `Last day!`}
+            {getDaysLeftText()}
           </Text>
         </View>
       </View>
