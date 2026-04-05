@@ -1,18 +1,49 @@
-import { useClerk, useUser } from "@clerk/expo";
+import { useAuth, useClerk, useUser } from "@clerk/expo";
 import { ScreenContainer } from "@/components/screen-container";
 import images from "@/constants/images";
 import { colors } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
+import { useState } from "react";
 
 const Settings = () => {
   const { user, isLoaded } = useUser();
+  const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const router = useRouter();
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const isEmailVerified =
+    user?.primaryEmailAddress?.verification?.status === "verified";
+  const sessionStatusLabel = isSignedIn
+    ? "Sessão protegida"
+    : "Sessão não protegida";
+  const verificationStatusLabel = isEmailVerified
+    ? "E-mail confirmado"
+    : "E-mail não confirmado";
+  const statusTextClassName = isSignedIn
+    ? "font-sans-bold text-primary"
+    : "font-sans-bold text-muted-foreground";
+  const verificationTextClassName = isEmailVerified
+    ? "font-sans-bold text-primary"
+    : "font-sans-bold text-muted-foreground";
 
   const handleSignOut = async () => {
-    await signOut();
-    router.replace("/sign-in");
+    setSignOutError(null);
+    setIsSigningOut(true);
+
+    try {
+      await signOut();
+      router.replace("/sign-in");
+    } catch (error) {
+      console.error("Erro ao encerrar a sessão:", error);
+      setSignOutError(
+        "Não foi possível encerrar a sessão agora. Tente novamente.",
+      );
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -47,17 +78,15 @@ const Settings = () => {
                 <Text className="text-sm font-sans-medium text-muted-foreground">
                   Acesso
                 </Text>
-                <Text className="font-sans-bold text-primary">
-                  Sessão protegida
-                </Text>
+                <Text className={statusTextClassName}>{sessionStatusLabel}</Text>
               </View>
 
               <View className="flex-row items-center justify-between gap-3">
                 <Text className="text-sm font-sans-medium text-muted-foreground">
                   Verificação
                 </Text>
-                <Text className="font-sans-bold text-primary">
-                  E-mail confirmado
+                <Text className={verificationTextClassName}>
+                  {verificationStatusLabel}
                 </Text>
               </View>
             </View>
@@ -72,8 +101,20 @@ const Settings = () => {
               quiser trocar de conta.
             </Text>
 
-            <Pressable className="auth-button mt-5" onPress={handleSignOut}>
-              <Text className="auth-button-text">Sair</Text>
+            {signOutError ? (
+              <Text className="auth-error mt-4">{signOutError}</Text>
+            ) : null}
+
+            <Pressable
+              className="auth-button mt-5"
+              onPress={handleSignOut}
+              disabled={isSigningOut}
+            >
+              {isSigningOut ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : (
+                <Text className="auth-button-text">Sair</Text>
+              )}
             </Pressable>
           </View>
         </View>

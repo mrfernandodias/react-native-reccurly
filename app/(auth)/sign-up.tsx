@@ -32,6 +32,12 @@ export default function SignUp() {
   const [code, setCode] = useState("");
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isCompletingAccess, setIsCompletingAccess] = useState(false);
+  const [hasSentVerificationCode, setHasSentVerificationCode] = useState(false);
+  const [isSendingVerificationCode, setIsSendingVerificationCode] =
+    useState(false);
+  const [verificationFeedback, setVerificationFeedback] = useState<
+    string | null
+  >(null);
   const [localErrors, setLocalErrors] = useState<{
     emailAddress?: string;
     password?: string;
@@ -41,6 +47,7 @@ export default function SignUp() {
 
   const isSubmitting = fetchStatus === "fetching";
   const isVerifyingEmail =
+    hasSentVerificationCode &&
     signUp?.status === "missing_requirements" &&
     signUp.unverifiedFields.includes("email_address") &&
     signUp.missingFields.length === 0;
@@ -82,6 +89,75 @@ export default function SignUp() {
       [field]: undefined,
     }));
     setGeneralError(null);
+    setVerificationFeedback(null);
+  };
+
+  const handleFinalize = async () => {
+    if (!signUp) {
+      setIsCompletingAccess(false);
+      setGeneralError("A autenticação ainda está carregando. Tente novamente.");
+      return;
+    }
+
+    setIsCompletingAccess(true);
+
+    try {
+      await signUp.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          if (session?.currentTask) {
+            setIsCompletingAccess(false);
+            setGeneralError(
+              "Sua conta foi criada, mas ainda falta uma etapa de segurança.",
+            );
+            return;
+          }
+
+          navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
+            router.replace(href),
+          );
+        },
+      });
+    } catch (error) {
+      setIsCompletingAccess(false);
+      throw error;
+    }
+  };
+
+  const sendVerificationCode = async (showSuccessFeedback = false) => {
+    if (!signUp) {
+      setGeneralError("A autenticação ainda está carregando. Tente novamente.");
+      return false;
+    }
+
+    setGeneralError(null);
+    if (showSuccessFeedback) {
+      setVerificationFeedback(null);
+    }
+    setIsSendingVerificationCode(true);
+
+    try {
+      await signUp.verifications.sendEmailCode();
+      setHasSentVerificationCode(true);
+
+      if (showSuccessFeedback) {
+        setVerificationFeedback("Enviamos um novo código para o seu e-mail.");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao enviar código de verificação:", error);
+      setGeneralError(
+        getClerkErrorMessage(error) ||
+          "Não foi possível enviar o código de verificação. Tente novamente.",
+      );
+      return false;
+    } finally {
+      setIsSendingVerificationCode(false);
+    }
+  };
+
+  const handleResendVerificationCode = async () => {
+    await sendVerificationCode(true);
   };
 
   const handleSubmit = async () => {
@@ -121,7 +197,11 @@ export default function SignUp() {
         return;
       }
 
-      await signUp.verifications.sendEmailCode();
+      const codeWasSent = await sendVerificationCode();
+
+      if (!codeWasSent) {
+        return;
+      }
     } catch (error) {
       setGeneralError(
         getClerkErrorMessage(error) ||
@@ -144,25 +224,22 @@ export default function SignUp() {
     setGeneralError(null);
 
     try {
-      await signUp.verifications.verifyEmailCode({ code: code.trim() });
+      const verificationResult = await signUp.verifications.verifyEmailCode({
+        code: code.trim(),
+      });
 
+      if (verificationResult.error) {
+        setGeneralError(
+          getClerkErrorMessage(verificationResult.error) ||
+            "Não foi possível verificar o código. Solicite um novo e tente novamente.",
+        );
+        return;
+      }
+
+      // Nesta versão do Clerk, verifyEmailCode retorna apenas o erro e atualiza
+      // o recurso signUp em memória. Por isso, o status final continua vindo de signUp.
       if (signUp.status === "complete") {
-        setIsCompletingAccess(true);
-        await signUp.finalize({
-          navigate: ({ session, decorateUrl }) => {
-            if (session?.currentTask) {
-              setIsCompletingAccess(false);
-              setGeneralError(
-                "Sua conta foi criada, mas ainda falta uma etapa de segurança.",
-              );
-              return;
-            }
-
-            navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
-              router.replace(href),
-            );
-          },
-        });
+        await handleFinalize();
         return;
       }
 
@@ -178,8 +255,8 @@ export default function SignUp() {
     }
   };
 
-  if (signUp?.status === "complete" || isSignedIn) {
-    return <Redirect href="/" />;
+  if (isSignedIn && !isCompletingAccess) {
+    return <Redirect href="/home" />;
   }
 
   if (isCompletingAccess) {
@@ -251,9 +328,10 @@ export default function SignUp() {
           <Pressable
             className={clsx(
               "auth-button",
-              (isSubmitting || !code.trim()) && "auth-button-disabled",
+              (isSubmitting || isSendingVerificationCode || !code.trim()) &&
+                "auth-button-disabled",
             )}
-            disabled={isSubmitting || !code.trim()}
+            disabled={isSubmitting || isSendingVerificationCode || !code.trim()}
             onPress={handleVerify}
           >
             {isSubmitting ? (
@@ -265,11 +343,23 @@ export default function SignUp() {
 
           <Pressable
             className="auth-secondary-button"
-            disabled={isSubmitting}
-            onPress={() => signUp?.verifications.sendEmailCode()}
+            disabled={isSubmitting || isSendingVerificationCode}
+            onPress={handleResendVerificationCode}
           >
-            <Text className="auth-secondary-button-text">Enviar novo código</Text>
+            {isSendingVerificationCode ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <Text className="auth-secondary-button-text">
+                Enviar novo código
+              </Text>
+            )}
           </Pressable>
+
+          {verificationFeedback ? (
+            <Text className="auth-helper text-center">
+              {verificationFeedback}
+            </Text>
+          ) : null}
         </View>
       </AuthScreen>
     );
@@ -390,10 +480,20 @@ export default function SignUp() {
         <Pressable
           className={clsx(
             "auth-button",
-            (isSubmitting || !emailAddress || !password || !confirmPassword) &&
+            (isSubmitting ||
+              isSendingVerificationCode ||
+              !emailAddress ||
+              !password ||
+              !confirmPassword) &&
               "auth-button-disabled",
           )}
-          disabled={isSubmitting || !emailAddress || !password || !confirmPassword}
+          disabled={
+            isSubmitting ||
+            isSendingVerificationCode ||
+            !emailAddress ||
+            !password ||
+            !confirmPassword
+          }
           onPress={handleSubmit}
         >
           {isSubmitting ? (

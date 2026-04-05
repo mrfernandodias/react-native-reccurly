@@ -29,6 +29,8 @@ export default function SignIn() {
   const [code, setCode] = useState("");
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isCompletingAccess, setIsCompletingAccess] = useState(false);
+  const [isResendingCode, setIsResendingCode] = useState(false);
+  const [resendFeedback, setResendFeedback] = useState<string | null>(null);
   const [localErrors, setLocalErrors] = useState<{
     emailAddress?: string;
     password?: string;
@@ -66,6 +68,74 @@ export default function SignIn() {
       [field]: undefined,
     }));
     setGeneralError(null);
+    setResendFeedback(null);
+  };
+
+  const handleFinalize = async () => {
+    if (!signIn) {
+      setIsCompletingAccess(false);
+      setGeneralError("A autenticação ainda está carregando. Tente novamente.");
+      return;
+    }
+
+    setIsCompletingAccess(true);
+
+    try {
+      await signIn.finalize({
+        navigate: ({ session, decorateUrl }) => {
+          if (session?.currentTask) {
+            setIsCompletingAccess(false);
+            setGeneralError(
+              "Sua conta precisa concluir mais uma etapa de segurança antes de liberar o acesso.",
+            );
+            return;
+          }
+
+          navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
+            router.replace(href),
+          );
+        },
+      });
+    } catch (error) {
+      setIsCompletingAccess(false);
+      throw error;
+    }
+  };
+
+  const sendVerificationCode = async (showSuccessFeedback = false) => {
+    if (!signIn) {
+      setGeneralError("A autenticação ainda está carregando. Tente novamente.");
+      return false;
+    }
+
+    setGeneralError(null);
+    if (showSuccessFeedback) {
+      setResendFeedback(null);
+    }
+    setIsResendingCode(true);
+
+    try {
+      await signIn.mfa.sendEmailCode();
+
+      if (showSuccessFeedback) {
+        setResendFeedback("Enviamos um novo código para o seu e-mail.");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Erro ao reenviar código de acesso:", error);
+      setGeneralError(
+        getClerkErrorMessage(error) ||
+          "Não foi possível enviar um novo código agora. Tente novamente.",
+      );
+      return false;
+    } finally {
+      setIsResendingCode(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    await sendVerificationCode(true);
   };
 
   const handleSubmit = async () => {
@@ -100,22 +170,7 @@ export default function SignIn() {
       }
 
       if (signIn.status === "complete") {
-        setIsCompletingAccess(true);
-        await signIn.finalize({
-          navigate: ({ session, decorateUrl }) => {
-            if (session?.currentTask) {
-              setIsCompletingAccess(false);
-              setGeneralError(
-                "Sua conta precisa concluir mais uma etapa de segurança antes de liberar o acesso.",
-              );
-              return;
-            }
-
-            navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
-              router.replace(href),
-            );
-          },
-        });
+        await handleFinalize();
         return;
       }
 
@@ -125,7 +180,12 @@ export default function SignIn() {
         );
 
         if (emailCodeFactor) {
-          await signIn.mfa.sendEmailCode();
+          const codeWasSent = await sendVerificationCode();
+
+          if (!codeWasSent) {
+            return;
+          }
+
           return;
         }
       }
@@ -159,22 +219,7 @@ export default function SignIn() {
       await signIn.mfa.verifyEmailCode({ code: code.trim() });
 
       if (signIn.status === "complete") {
-        setIsCompletingAccess(true);
-        await signIn.finalize({
-          navigate: ({ session, decorateUrl }) => {
-            if (session?.currentTask) {
-              setIsCompletingAccess(false);
-              setGeneralError(
-                "Sua conta precisa concluir mais uma etapa de segurança antes de liberar o acesso.",
-              );
-              return;
-            }
-
-            navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
-              router.replace(href),
-            );
-          },
-        });
+        await handleFinalize();
         return;
       }
 
@@ -198,6 +243,7 @@ export default function SignIn() {
     await signIn.reset();
     setCode("");
     setGeneralError(null);
+    setResendFeedback(null);
     setLocalErrors({});
   };
 
@@ -269,9 +315,10 @@ export default function SignIn() {
           <Pressable
             className={clsx(
               "auth-button",
-              (isSubmitting || !code.trim()) && "auth-button-disabled",
+              (isSubmitting || isResendingCode || !code.trim()) &&
+                "auth-button-disabled",
             )}
-            disabled={isSubmitting || !code.trim()}
+            disabled={isSubmitting || isResendingCode || !code.trim()}
             onPress={handleVerify}
           >
             {isSubmitting ? (
@@ -283,19 +330,29 @@ export default function SignIn() {
 
           <Pressable
             className="auth-secondary-button"
-            disabled={isSubmitting}
-            onPress={() => signIn?.mfa.sendEmailCode()}
+            disabled={isSubmitting || isResendingCode}
+            onPress={handleResendCode}
           >
-            <Text className="auth-secondary-button-text">Enviar novo código</Text>
+            {isResendingCode ? (
+              <ActivityIndicator color={colors.primary} />
+            ) : (
+              <Text className="auth-secondary-button-text">
+                Enviar novo código
+              </Text>
+            )}
           </Pressable>
 
           <Pressable
             className="auth-secondary-button"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isResendingCode}
             onPress={handleStartOver}
           >
             <Text className="auth-secondary-button-text">Começar de novo</Text>
           </Pressable>
+
+          {resendFeedback ? (
+            <Text className="auth-helper text-center">{resendFeedback}</Text>
+          ) : null}
         </View>
       </AuthScreen>
     );

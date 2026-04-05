@@ -23,7 +23,7 @@ export default function RootLayout() {
   }
 
   if (isSignedIn) {
-    return <Redirect href="/" />;
+    return <Redirect href="/home" />;
   }
 
   return <Stack screenOptions={{ headerShown: false }} />;

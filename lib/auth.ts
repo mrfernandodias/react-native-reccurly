@@ -29,11 +29,17 @@ export function validateEmailAddress(value: string) {
 }
 
 export function validatePassword(value: string) {
-  if (!value.trim()) {
+  const normalizedValue = value.trim();
+
+  if (!normalizedValue) {
     return "Informe sua senha.";
   }
 
-  if (value.trim().length < 8) {
+  if (value !== normalizedValue) {
+    return "Não use espaços no início ou no fim da senha.";
+  }
+
+  if (normalizedValue.length < 8) {
     return "Use pelo menos 8 caracteres.";
   }
 
