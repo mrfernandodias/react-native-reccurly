@@ -1,7 +1,8 @@
 import { icons } from "@/constants/icons";
 import { colors } from "@/constants/theme";
-import dayjs from "dayjs";
+import { posthog } from "@/lib/posthog";
 import { clsx } from "clsx";
+import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -144,6 +145,13 @@ export default function CreateSubscriptionModal({
     };
 
     onCreate(subscription);
+
+    posthog.capture("subscription_created", {
+      subscription_name: subscription.name,
+      subscription_price: subscription.price,
+      subscription_frequency: subscription.billing,
+      subscription_category: subscription.category ?? null,
+    });
     handleClose();
   };
 
