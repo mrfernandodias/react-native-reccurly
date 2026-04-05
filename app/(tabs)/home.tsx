@@ -1,11 +1,12 @@
 import { useUser } from "@clerk/expo";
+import CreateSubscriptionModal from "@/components/CreateSubscriptionModal";
 import ListHeading from "@/components/ListHeading";
 import { ScreenContainer } from "@/components/screen-container";
+import { useSubscriptions } from "@/contexts/subscriptions-context";
 import SubscriptionCard from "@/components/SubscriptionCard";
 import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import {
   HOME_BALANCE,
-  HOME_SUBSCRIPTIONS,
   UPCOMING_SUBSCRIPTIONS,
 } from "@/constants/data";
 import { icons } from "@/constants/icons";
@@ -14,23 +15,36 @@ import { formatCurrency } from "@/lib/utils";
 
 import dayjs from "dayjs";
 import type { ImageSourcePropType } from "react-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-import { FlatList, Image, Text, View } from "react-native";
+import { FlatList, Image, Pressable, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
 
 interface HomeListHeaderProps {
   userName: string;
   avatarSource: ImageSourcePropType;
+  onCreatePress: () => void;
 }
 
-const HomeListHeader = ({ userName, avatarSource }: HomeListHeaderProps) => (
+const HomeListHeader = ({
+  userName,
+  avatarSource,
+  onCreatePress,
+}: HomeListHeaderProps) => (
   <>
     <View className="home-header">
       <View className="home-user">
         <Image source={avatarSource} className="home-avatar" />
         <Text className="home-user-name">{userName}</Text>
       </View>
-      <Image source={icons.add} className="home-add-icon" />
+      <Pressable
+        onPress={onCreatePress}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel="Criar assinatura"
+      >
+        <Image source={icons.add} className="home-add-icon" />
+      </Pressable>
     </View>
 
     <View className="home-balance-card">
@@ -65,9 +79,12 @@ const HomeListHeader = ({ userName, avatarSource }: HomeListHeaderProps) => (
 
 export default function Home() {
   const { user } = useUser();
+  const { subscriptions, addSubscription } = useSubscriptions();
+  const posthog = usePostHog();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
 
   const userName =
     user?.fullName?.trim() ||
@@ -81,26 +98,58 @@ export default function Home() {
     () => (user?.imageUrl ? { uri: user.imageUrl } : images.avatar),
     [user?.imageUrl],
   );
+  const handleOpenCreateModal = useCallback(() => {
+    setIsCreateModalVisible(true);
+  }, []);
+  const handleCreateSubscription = (subscription: Subscription) => {
+    addSubscription(subscription);
+    setExpandedSubscriptionId(subscription.id);
+    setIsCreateModalVisible(false);
+  };
   const listHeader = useMemo(
-    () => <HomeListHeader userName={userName} avatarSource={avatarSource} />,
-    [avatarSource, userName],
+    () => (
+      <HomeListHeader
+        userName={userName}
+        avatarSource={avatarSource}
+        onCreatePress={handleOpenCreateModal}
+      />
+    ),
+    [avatarSource, handleOpenCreateModal, userName],
   );
 
   return (
     <ScreenContainer>
+      <CreateSubscriptionModal
+        visible={isCreateModalVisible}
+        onClose={() => setIsCreateModalVisible(false)}
+        onCreate={handleCreateSubscription}
+      />
+
       <FlatList
         ListHeaderComponent={listHeader}
-        data={HOME_SUBSCRIPTIONS}
+        data={subscriptions}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <SubscriptionCard
             {...item}
             expanded={expandedSubscriptionId === item.id}
-            onPress={() =>
-              setExpandedSubscriptionId(
-                expandedSubscriptionId === item.id ? null : item.id,
-              )
-            }
+            onPress={() => {
+              const isExpanding = expandedSubscriptionId !== item.id;
+              setExpandedSubscriptionId(isExpanding ? item.id : null);
+
+              if (isExpanding) {
+                const eventProperties = {
+                  subscription_id: item.id,
+                  subscription_name: item.name,
+                  ...(item.category
+                    ? { subscription_category: item.category }
+                    : {}),
+                  ...(item.status ? { subscription_status: item.status } : {}),
+                };
+
+                posthog.capture("subscription_card_expanded", eventProperties);
+              }
+            }}
           />
         )}
         extraData={expandedSubscriptionId}

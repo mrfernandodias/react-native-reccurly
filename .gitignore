@@ -34,11 +34,11 @@ yarn-error.*
 .env
 .env.*
 !.env.example
+.claude/
+posthog-*-report.md
 
 # typescript
 *.tsbuildinfo
-
-app-example
 
 # generated native folders
 /ios

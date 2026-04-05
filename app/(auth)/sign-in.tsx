@@ -11,6 +11,7 @@ import {
 import { useSignIn } from "@clerk/expo";
 import { useRouter } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
+import { usePostHog } from "posthog-react-native";
 import {
   ActivityIndicator,
   Pressable,
@@ -23,6 +24,7 @@ import { clsx } from "clsx";
 export default function SignIn() {
   const { signIn, errors, fetchStatus } = useSignIn();
   const router = useRouter();
+  const posthog = usePostHog();
 
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -90,6 +92,25 @@ export default function SignIn() {
             );
             return;
           }
+
+          const normalizedEmail = normalizeEmailAddress(emailAddress);
+          const analyticsUserId = session?.user?.id ?? session?.id;
+
+          if (!analyticsUserId) {
+            setIsCompletingAccess(false);
+            setGeneralError(
+              "Não conseguimos identificar sua sessão para concluir o acesso.",
+            );
+            return;
+          }
+
+          posthog.identify(analyticsUserId, {
+            $set: { email: normalizedEmail },
+          });
+          posthog.capture("user_signed_in", {
+            auth_provider: "clerk",
+            auth_strategy: "email_password",
+          });
 
           navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
             router.replace(href),

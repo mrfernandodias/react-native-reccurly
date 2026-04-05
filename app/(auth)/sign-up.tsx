@@ -10,7 +10,9 @@ import {
   validateVerificationCode,
 } from "@/lib/auth";
 import { useAuth, useSignUp } from "@clerk/expo";
+import { clsx } from "clsx";
 import { Redirect, useRouter } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -19,12 +21,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { clsx } from "clsx";
 
 export default function SignUp() {
   const { signUp, errors, fetchStatus } = useSignUp();
   const { isSignedIn } = useAuth();
   const router = useRouter();
+  const posthog = usePostHog();
 
   const [emailAddress, setEmailAddress] = useState("");
   const [password, setPassword] = useState("");
@@ -112,6 +114,27 @@ export default function SignUp() {
             return;
           }
 
+          const normalizedEmail = normalizeEmailAddress(emailAddress);
+          const analyticsUserId =
+            session?.user?.id ?? signUp.createdUserId ?? session?.id;
+
+          if (!analyticsUserId) {
+            setIsCompletingAccess(false);
+            setGeneralError(
+              "Não conseguimos identificar sua nova conta para concluir o acesso.",
+            );
+            return;
+          }
+
+          posthog.identify(analyticsUserId, {
+            $set: { email: normalizedEmail },
+            $set_once: { first_sign_up_date: new Date().toISOString() },
+          });
+          posthog.capture("user_signed_up", {
+            auth_provider: "clerk",
+            signup_method: "email_password",
+          });
+
           navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
             router.replace(href),
           );
@@ -176,7 +199,9 @@ export default function SignUp() {
       !signUp
     ) {
       if (!signUp) {
-        setGeneralError("A autenticação ainda está carregando. Tente novamente.");
+        setGeneralError(
+          "A autenticação ainda está carregando. Tente novamente.",
+        );
       }
       return;
     }
@@ -216,7 +241,9 @@ export default function SignUp() {
 
     if (codeError || !signUp) {
       if (!signUp) {
-        setGeneralError("A autenticação ainda está carregando. Tente novamente.");
+        setGeneralError(
+          "A autenticação ainda está carregando. Tente novamente.",
+        );
       }
       return;
     }
@@ -367,7 +394,6 @@ export default function SignUp() {
 
   return (
     <AuthScreen
-      kicker="CRIAR CONTA"
       title="Crie sua conta"
       subtitle="Comece a gerenciar suas assinaturas em um só lugar"
       footerCopy="Já usa a Recurrly?"
@@ -475,7 +501,9 @@ export default function SignUp() {
           ) : null}
         </View>
 
-        {generalError ? <Text className="auth-error">{generalError}</Text> : null}
+        {generalError ? (
+          <Text className="auth-error">{generalError}</Text>
+        ) : null}
 
         <Pressable
           className={clsx(
