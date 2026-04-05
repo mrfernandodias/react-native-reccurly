@@ -17,6 +17,7 @@ import type { ImageSourcePropType } from "react-native";
 import { useMemo, useState } from "react";
 
 import { FlatList, Image, Text, View } from "react-native";
+import { usePostHog } from "posthog-react-native";
 
 interface HomeListHeaderProps {
   userName: string;
@@ -65,6 +66,7 @@ const HomeListHeader = ({ userName, avatarSource }: HomeListHeaderProps) => (
 
 export default function Home() {
   const { user } = useUser();
+  const posthog = usePostHog();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
@@ -96,11 +98,18 @@ export default function Home() {
           <SubscriptionCard
             {...item}
             expanded={expandedSubscriptionId === item.id}
-            onPress={() =>
-              setExpandedSubscriptionId(
-                expandedSubscriptionId === item.id ? null : item.id,
-              )
-            }
+            onPress={() => {
+              const isExpanding = expandedSubscriptionId !== item.id;
+              setExpandedSubscriptionId(isExpanding ? item.id : null);
+              if (isExpanding) {
+                posthog.capture('subscription_card_expanded', {
+                  subscription_id: item.id,
+                  subscription_name: item.name,
+                  subscription_category: item.category,
+                  subscription_status: item.status,
+                });
+              }
+            }}
           />
         )}
         extraData={expandedSubscriptionId}

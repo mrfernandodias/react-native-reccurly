@@ -5,12 +5,14 @@ import { colors } from "@/constants/theme";
 import { useRouter } from "expo-router";
 import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 import { useState } from "react";
+import { usePostHog } from "posthog-react-native";
 
 const Settings = () => {
   const { user, isLoaded } = useUser();
   const { isSignedIn } = useAuth();
   const { signOut } = useClerk();
   const router = useRouter();
+  const posthog = usePostHog();
   const [signOutError, setSignOutError] = useState<string | null>(null);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -34,6 +36,8 @@ const Settings = () => {
     setIsSigningOut(true);
 
     try {
+      posthog.capture('user_signed_out');
+      posthog.reset();
       await signOut();
       router.replace("/sign-in");
     } catch (error) {
