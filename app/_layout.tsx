@@ -22,7 +22,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (fontsLoaded || error) {
-      SplashScreen.hideAsync();
+      SplashScreen.hideAsync().catch(() => {});
     }
   }, [fontsLoaded, error]);
 

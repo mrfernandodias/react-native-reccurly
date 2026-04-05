@@ -1,11 +1,9 @@
 import avatar from "@/assets/images/avatar.png";
-import splashPattern from "@/assets/images/splash-pattern.png";
 
 interface ImagesConstants {
-  splashPattern: any;
   avatar: any;
 }
 
-const images: ImagesConstants = { splashPattern, avatar };
+const images: ImagesConstants = { avatar };
 
 export default images;

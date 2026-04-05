@@ -31,7 +31,7 @@ const HomeListHeader = () => (
       <Text className="home-balance-label">Balance</Text>
       <View className="home-balance-row">
         <Text className="home-balance-amount">
-          {formatCurrency(HOME_BALANCE.amount)}
+          {formatCurrency(HOME_BALANCE.amount, "BRL")}
         </Text>
         <Text className="home-balance-date">
           {dayjs(HOME_BALANCE.nextRenewalDate).format("DD/MM")}

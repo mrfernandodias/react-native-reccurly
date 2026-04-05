@@ -24,11 +24,11 @@ export function formatCurrency(value: number, currency = "BRL") {
  * Formata uma data de renovação para exibição na interface.
  * Se a data for inválida ou não fornecida, retorna "Not provided".
  * Utiliza a biblioteca dayjs para parsing e formatação de datas.
- * O formato de saída é "MM/DD/YYYY".
+ * O formato de saída é "DD/MM/YYYY".
  *
  * Exemplo de uso:
  * const formattedDate = formatSubscriptionDateTime("2025-04-20T10:00:00.000Z");
- * console.log(formattedDate); // Output: "04/20/2025"
+ * console.log(formattedDate); // Output: "20/04/2025"
  *
  * @param value - A string representando a data de renovação (ex: "2025-04-20T10:00:00.000Z").
  * @returns Uma string formatada representando a data ou "Not provided" se a data for inválida.
