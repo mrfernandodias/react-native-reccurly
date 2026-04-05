@@ -79,7 +79,7 @@
   }
 
   .home-add-icon {
-    @apply size-12;
+    @apply size-8;
   }
 
   .home-balance-card {
@@ -127,7 +127,7 @@
   }
 
   .upcoming-icon {
-    @apply size-14;
+    @apply size-12;
   }
 
   .upcoming-price {
@@ -159,7 +159,7 @@
   }
 
   .sub-icon {
-    @apply size-16 rounded-lg;
+    @apply size-14 rounded-lg;
   }
 
   .sub-copy {
