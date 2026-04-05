@@ -55,7 +55,6 @@ const SubscriptionCard = ({
             <Text numberOfLines={1} ellipsizeMode="tail" className="sub-meta">
               {category?.trim() ||
                 plan?.trim() ||
-                null ||
                 (renewalDate ? formatSubscriptionDateTime(renewalDate) : null)}
             </Text>
           </View>
