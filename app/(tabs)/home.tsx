@@ -14,7 +14,7 @@ import { formatCurrency } from "@/lib/utils";
 
 import dayjs from "dayjs";
 import type { ImageSourcePropType } from "react-native";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { FlatList, Image, Text, View } from "react-native";
 
@@ -77,14 +77,19 @@ export default function Home() {
       ?.split("@")[0]
       ?.trim() ||
     "Sua conta";
-  const avatarSource = user?.imageUrl ? { uri: user.imageUrl } : images.avatar;
+  const avatarSource = useMemo(
+    () => (user?.imageUrl ? { uri: user.imageUrl } : images.avatar),
+    [user?.imageUrl],
+  );
+  const listHeader = useMemo(
+    () => <HomeListHeader userName={userName} avatarSource={avatarSource} />,
+    [avatarSource, userName],
+  );
 
   return (
     <ScreenContainer>
       <FlatList
-        ListHeaderComponent={() => (
-          <HomeListHeader userName={userName} avatarSource={avatarSource} />
-        )}
+        ListHeaderComponent={listHeader}
         data={HOME_SUBSCRIPTIONS}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (

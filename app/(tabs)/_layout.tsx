@@ -10,6 +10,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const tabBar = components.tabBar;
 
+const TabIcon = ({ focused, icon }: TabIconProps) => {
+  return (
+    <View className="tabs-icon">
+      <View className={clsx("tabs-pill", focused && "tabs-active")}>
+        <Image source={icon} resizeMode="contain" className="tabs-glyph" />
+      </View>
+    </View>
+  );
+};
+
 /**
  * Renderiza a navegação principal por abas do app.
  * Ajusta o posicionamento e o tamanho da tab bar com base na safe area do dispositivo.
@@ -36,16 +46,6 @@ const TabLayout = () => {
   if (!isSignedIn) {
     return <Redirect href="/" />;
   }
-
-  const TabIcon = ({ focused, icon }: TabIconProps) => {
-    return (
-      <View className="tabs-icon">
-        <View className={clsx("tabs-pill", focused && "tabs-active")}>
-          <Image source={icon} resizeMode="contain" className="tabs-glyph" />
-        </View>
-      </View>
-    );
-  };
 
   return (
     <Tabs
