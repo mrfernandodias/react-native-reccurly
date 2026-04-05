@@ -1,9 +1,9 @@
 import "@/global.css";
 import { SubscriptionsProvider } from "@/contexts/subscriptions-context";
-import { ClerkProvider } from "@clerk/expo";
+import { ClerkProvider, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
-import { Slot, SplashScreen, useGlobalSearchParams, usePathname } from "expo-router";
+import { Slot, SplashScreen, usePathname } from "expo-router";
 import { useEffect, useRef } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { PostHogProvider } from "posthog-react-native";
@@ -17,6 +17,25 @@ if (!publishableKey) {
   throw new Error("Adicione sua chave publicável do Clerk ao arquivo .env");
 }
 
+function RootProviders() {
+  const { user } = useUser();
+
+  return (
+    <PostHogProvider
+      client={posthog}
+      autocapture={{
+        captureScreens: false,
+        captureTouches: true,
+        propsToCapture: ["testID"],
+      }}
+    >
+      <SubscriptionsProvider key={user?.id ?? "anon"}>
+        <Slot />
+      </SubscriptionsProvider>
+    </PostHogProvider>
+  );
+}
+
 /**
  * Layout raiz do app que carrega as fontes Plus Jakarta Sans, controla a splash
  * screen e renderiza a navegação principal.
@@ -27,7 +46,6 @@ if (!publishableKey) {
  */
 export default function RootLayout() {
   const pathname = usePathname();
-  const params = useGlobalSearchParams();
   const previousPathname = useRef<string | undefined>(undefined);
 
   // Manual screen tracking for Expo Router
@@ -35,11 +53,10 @@ export default function RootLayout() {
     if (previousPathname.current !== pathname) {
       posthog.screen(pathname, {
         previous_screen: previousPathname.current ?? null,
-        ...params,
       });
       previousPathname.current = pathname;
     }
-  }, [pathname, params]);
+  }, [pathname]);
 
   const [fontsLoaded, error] = useFonts({
     "sans-regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
@@ -97,18 +114,7 @@ export default function RootLayout() {
 
   return (
     <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <PostHogProvider
-        client={posthog}
-        autocapture={{
-          captureScreens: false,
-          captureTouches: true,
-          propsToCapture: ["testID"],
-        }}
-      >
-        <SubscriptionsProvider>
-          <Slot />
-        </SubscriptionsProvider>
-      </PostHogProvider>
+      <RootProviders />
     </ClerkProvider>
   );
 }

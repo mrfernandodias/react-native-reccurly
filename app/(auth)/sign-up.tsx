@@ -115,11 +115,25 @@ export default function SignUp() {
           }
 
           const normalizedEmail = normalizeEmailAddress(emailAddress);
-          posthog.identify(normalizedEmail, {
+          const analyticsUserId =
+            session?.user?.id ?? signUp.createdUserId ?? session?.id;
+
+          if (!analyticsUserId) {
+            setIsCompletingAccess(false);
+            setGeneralError(
+              "Não conseguimos identificar sua nova conta para concluir o acesso.",
+            );
+            return;
+          }
+
+          posthog.identify(analyticsUserId, {
             $set: { email: normalizedEmail },
             $set_once: { first_sign_up_date: new Date().toISOString() },
           });
-          posthog.capture("user_signed_up", { email: normalizedEmail });
+          posthog.capture("user_signed_up", {
+            auth_provider: "clerk",
+            signup_method: "email_password",
+          });
 
           navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
             router.replace(href),

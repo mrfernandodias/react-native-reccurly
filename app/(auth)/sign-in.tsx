@@ -94,10 +94,23 @@ export default function SignIn() {
           }
 
           const normalizedEmail = normalizeEmailAddress(emailAddress);
-          posthog.identify(normalizedEmail, {
+          const analyticsUserId = session?.user?.id ?? session?.id;
+
+          if (!analyticsUserId) {
+            setIsCompletingAccess(false);
+            setGeneralError(
+              "Não conseguimos identificar sua sessão para concluir o acesso.",
+            );
+            return;
+          }
+
+          posthog.identify(analyticsUserId, {
             $set: { email: normalizedEmail },
           });
-          posthog.capture('user_signed_in', { email: normalizedEmail });
+          posthog.capture("user_signed_in", {
+            auth_provider: "clerk",
+            auth_strategy: "email_password",
+          });
 
           navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
             router.replace(href),

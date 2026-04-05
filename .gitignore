@@ -35,7 +35,7 @@ yarn-error.*
 .env.*
 !.env.example
 .claude/
-posthog-setup-report.md
+posthog-*-report.md
 
 # typescript
 *.tsbuildinfo
