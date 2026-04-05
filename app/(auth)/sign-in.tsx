@@ -28,6 +28,7 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [generalError, setGeneralError] = useState<string | null>(null);
+  const [isCompletingAccess, setIsCompletingAccess] = useState(false);
   const [localErrors, setLocalErrors] = useState<{
     emailAddress?: string;
     password?: string;
@@ -99,16 +100,18 @@ export default function SignIn() {
       }
 
       if (signIn.status === "complete") {
+        setIsCompletingAccess(true);
         await signIn.finalize({
           navigate: ({ session, decorateUrl }) => {
             if (session?.currentTask) {
+              setIsCompletingAccess(false);
               setGeneralError(
                 "Sua conta precisa concluir mais uma etapa de segurança antes de liberar o acesso.",
               );
               return;
             }
 
-            navigateWithDecoratedUrl(decorateUrl("/"), (href) =>
+            navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
               router.replace(href),
             );
           },
@@ -131,6 +134,7 @@ export default function SignIn() {
         "Esta conta precisa de uma etapa adicional de verificação que ainda não está disponível nesta tela.",
       );
     } catch (error) {
+      setIsCompletingAccess(false);
       setGeneralError(
         getClerkErrorMessage(error) ||
           "Não foi possível entrar agora. Tente novamente.",
@@ -155,16 +159,18 @@ export default function SignIn() {
       await signIn.mfa.verifyEmailCode({ code: code.trim() });
 
       if (signIn.status === "complete") {
+        setIsCompletingAccess(true);
         await signIn.finalize({
           navigate: ({ session, decorateUrl }) => {
             if (session?.currentTask) {
+              setIsCompletingAccess(false);
               setGeneralError(
                 "Sua conta precisa concluir mais uma etapa de segurança antes de liberar o acesso.",
               );
               return;
             }
 
-            navigateWithDecoratedUrl(decorateUrl("/"), (href) =>
+            navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
               router.replace(href),
             );
           },
@@ -176,6 +182,7 @@ export default function SignIn() {
         "O código foi aceito, mas sua sessão ainda não está pronta. Tente novamente.",
       );
     } catch (error) {
+      setIsCompletingAccess(false);
       setGeneralError(
         getClerkErrorMessage(error) ||
           "Não foi possível verificar o código. Solicite um novo e tente novamente.",
@@ -193,6 +200,22 @@ export default function SignIn() {
     setGeneralError(null);
     setLocalErrors({});
   };
+
+  if (isCompletingAccess) {
+    return (
+      <AuthScreen
+        title="Entrando na sua conta"
+        subtitle="Estamos preparando sua visão inicial."
+        note="Isso leva só um instante."
+      >
+        <View className="auth-form">
+          <View className="items-center py-8">
+            <ActivityIndicator color={colors.primary} size="large" />
+          </View>
+        </View>
+      </AuthScreen>
+    );
+  }
 
   if (isVerifyingCode) {
     return (

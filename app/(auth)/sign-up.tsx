@@ -31,6 +31,7 @@ export default function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
   const [generalError, setGeneralError] = useState<string | null>(null);
+  const [isCompletingAccess, setIsCompletingAccess] = useState(false);
   const [localErrors, setLocalErrors] = useState<{
     emailAddress?: string;
     password?: string;
@@ -146,16 +147,18 @@ export default function SignUp() {
       await signUp.verifications.verifyEmailCode({ code: code.trim() });
 
       if (signUp.status === "complete") {
+        setIsCompletingAccess(true);
         await signUp.finalize({
           navigate: ({ session, decorateUrl }) => {
             if (session?.currentTask) {
+              setIsCompletingAccess(false);
               setGeneralError(
                 "Sua conta foi criada, mas ainda falta uma etapa de segurança.",
               );
               return;
             }
 
-            navigateWithDecoratedUrl(decorateUrl("/"), (href) =>
+            navigateWithDecoratedUrl(decorateUrl("/home"), (href) =>
               router.replace(href),
             );
           },
@@ -167,6 +170,7 @@ export default function SignUp() {
         "O código foi aceito, mas sua conta ainda precisa concluir mais uma etapa. Tente novamente.",
       );
     } catch (error) {
+      setIsCompletingAccess(false);
       setGeneralError(
         getClerkErrorMessage(error) ||
           "Não foi possível verificar o código. Solicite um novo e tente novamente.",
@@ -176,6 +180,22 @@ export default function SignUp() {
 
   if (signUp?.status === "complete" || isSignedIn) {
     return <Redirect href="/" />;
+  }
+
+  if (isCompletingAccess) {
+    return (
+      <AuthScreen
+        title="Criando seu acesso"
+        subtitle="Estamos finalizando sua conta e preparando sua visão inicial."
+        note="Isso leva só um instante."
+      >
+        <View className="auth-form">
+          <View className="items-center py-8">
+            <ActivityIndicator color={colors.primary} size="large" />
+          </View>
+        </View>
+      </AuthScreen>
+    );
   }
 
   if (isVerifyingEmail) {
