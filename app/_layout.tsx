@@ -10,13 +10,6 @@ export const unstable_settings = {
   initialRouteName: "(tabs)",
 };
 
-/**
- * Root layout component that loads PlusJakartaSans fonts, manages the splash screen, and renders the app navigation stack.
- *
- * @returns `null` while fonts are still loading and no error has occurred; a centered error view with the message
- * "Failed to load fonts. Please restart the app." if font loading fails; otherwise the navigation `<Stack>` with
- * headers hidden.
- */
 export default function RootLayout() {
   const [fontsLoaded, error] = useFonts({
     "sans-regular": require("../assets/fonts/PlusJakartaSans-Regular.ttf"),
@@ -35,8 +28,13 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, error]);
 
+  useEffect(() => {
+    if (error) {
+      console.error("Font loading error:", error);
+    }
+  }, [error]);
+
   if (error) {
-    console.error("Font loading error:", error);
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Failed to load fonts. Please restart the app.</Text>
