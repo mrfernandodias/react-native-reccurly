@@ -7,10 +7,6 @@ export const tabs: AppTab[] = [
   { name: "settings", title: "Configurações", icon: icons.setting },
 ];
 
-export const HOME_USER: { name: string } = {
-  name: "Fernando | FDS Tech",
-};
-
 export const HOME_BALANCE = {
   amount: 2489.48,
   nextRenewalDate: "2026-04-18T09:00:00.000Z",

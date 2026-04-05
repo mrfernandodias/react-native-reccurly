@@ -6,7 +6,6 @@ import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import {
   HOME_BALANCE,
   HOME_SUBSCRIPTIONS,
-  HOME_USER,
   UPCOMING_SUBSCRIPTIONS,
 } from "@/constants/data";
 import { icons } from "@/constants/icons";
@@ -71,7 +70,13 @@ export default function Home() {
   >(null);
 
   const userName =
-    user?.firstName || user?.fullName || user?.username || HOME_USER.name;
+    user?.fullName?.trim() ||
+    user?.firstName?.trim() ||
+    user?.username?.trim() ||
+    user?.primaryEmailAddress?.emailAddress
+      ?.split("@")[0]
+      ?.trim() ||
+    "Sua conta";
   const avatarSource = user?.imageUrl ? { uri: user.imageUrl } : images.avatar;
 
   return (
