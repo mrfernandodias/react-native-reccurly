@@ -36,9 +36,10 @@ const Settings = () => {
     setIsSigningOut(true);
 
     try {
-      posthog.capture('user_signed_out');
-      posthog.reset();
+      posthog.capture("user_signed_out");
+      await posthog.flush();
       await signOut();
+      posthog.reset();
       router.replace("/sign-in");
     } catch (error) {
       console.error("Erro ao encerrar a sessão:", error);

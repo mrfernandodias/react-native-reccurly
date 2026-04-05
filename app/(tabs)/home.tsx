@@ -15,7 +15,7 @@ import { formatCurrency } from "@/lib/utils";
 
 import dayjs from "dayjs";
 import type { ImageSourcePropType } from "react-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { FlatList, Image, Pressable, Text, View } from "react-native";
 import { usePostHog } from "posthog-react-native";
@@ -37,7 +37,12 @@ const HomeListHeader = ({
         <Image source={avatarSource} className="home-avatar" />
         <Text className="home-user-name">{userName}</Text>
       </View>
-      <Pressable onPress={onCreatePress} hitSlop={10}>
+      <Pressable
+        onPress={onCreatePress}
+        hitSlop={10}
+        accessibilityRole="button"
+        accessibilityLabel="Criar assinatura"
+      >
         <Image source={icons.add} className="home-add-icon" />
       </Pressable>
     </View>
@@ -93,6 +98,9 @@ export default function Home() {
     () => (user?.imageUrl ? { uri: user.imageUrl } : images.avatar),
     [user?.imageUrl],
   );
+  const handleOpenCreateModal = useCallback(() => {
+    setIsCreateModalVisible(true);
+  }, []);
   const handleCreateSubscription = (subscription: Subscription) => {
     addSubscription(subscription);
     setExpandedSubscriptionId(subscription.id);
@@ -103,10 +111,10 @@ export default function Home() {
       <HomeListHeader
         userName={userName}
         avatarSource={avatarSource}
-        onCreatePress={() => setIsCreateModalVisible(true)}
+        onCreatePress={handleOpenCreateModal}
       />
     ),
-    [avatarSource, userName],
+    [avatarSource, handleOpenCreateModal, userName],
   );
 
   return (

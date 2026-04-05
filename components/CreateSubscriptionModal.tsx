@@ -341,6 +341,7 @@ export default function CreateSubscriptionModal({
                     "auth-button",
                     !canSubmit && "auth-button-disabled",
                   )}
+                  disabled={!canSubmit}
                   onPress={handleSubmit}
                 >
                   <Text className="auth-button-text">Salvar assinatura</Text>
