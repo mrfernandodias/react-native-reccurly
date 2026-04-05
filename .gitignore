@@ -40,8 +40,6 @@ posthog-setup-report.md
 # typescript
 *.tsbuildinfo
 
-app-example
-
 # generated native folders
 /ios
 /android
