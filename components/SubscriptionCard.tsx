@@ -3,7 +3,7 @@ import {
   formatStatusLabel,
   formatSubscriptionDateTime,
 } from "@/lib/utils";
-import clsx from "clsx";
+import { clsx } from "clsx";
 import { Image, Pressable, Text, View } from "react-native";
 
 interface SubscriptionCardProps {
@@ -73,43 +73,45 @@ const SubscriptionCard = ({
           <View className="sub-details">
             <View className="sub-row">
               <View className="sub-row-copy">
-                <Text className="sub-label">Payment:</Text>
+                <Text className="sub-label">Pagamento:</Text>
                 <Text
                   className="sub-value"
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {paymentMethod?.trim() || "N/A"}
+                  {paymentMethod?.trim() || "Não informado"}
                 </Text>
               </View>
             </View>
             <View className="sub-row">
               <View className="sub-row-copy">
-                <Text className="sub-label">Category:</Text>
+                <Text className="sub-label">Categoria:</Text>
                 <Text
                   className="sub-value"
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {category?.trim() || plan?.trim() || "N/A"}
+                  {category?.trim() || plan?.trim() || "Não informado"}
                 </Text>
               </View>
             </View>
             <View className="sub-row">
               <View className="sub-row-copy">
-                <Text className="sub-label">Started:</Text>
+                <Text className="sub-label">Início:</Text>
                 <Text
                   className="sub-value"
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {startDate ? formatSubscriptionDateTime(startDate) : "N/A"}
+                  {startDate
+                    ? formatSubscriptionDateTime(startDate)
+                    : "Não informado"}
                 </Text>
               </View>
             </View>
             <View className="sub-row">
               <View className="sub-row-copy">
-                <Text className="sub-label">Renewal date:</Text>
+                <Text className="sub-label">Renovação:</Text>
                 <Text
                   className="sub-value"
                   numberOfLines={1}
@@ -117,7 +119,7 @@ const SubscriptionCard = ({
                 >
                   {renewalDate
                     ? formatSubscriptionDateTime(renewalDate)
-                    : "N/A"}
+                    : "Não informado"}
                 </Text>
               </View>
             </View>
@@ -129,7 +131,7 @@ const SubscriptionCard = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {status ? formatStatusLabel(status) : "N/A"}
+                  {status ? formatStatusLabel(status) : "Não informado"}
                 </Text>
               </View>
             </View>

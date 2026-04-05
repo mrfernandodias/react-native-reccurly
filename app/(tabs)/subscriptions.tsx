@@ -5,7 +5,7 @@ import { Text } from "react-native";
 const Subscriptions = () => {
   return (
     <ScreenContainer>
-      <Text>Subscriptions</Text>
+      <Text>Assinaturas</Text>
     </ScreenContainer>
   );
 };

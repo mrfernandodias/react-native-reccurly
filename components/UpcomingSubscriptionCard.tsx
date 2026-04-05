@@ -9,9 +9,9 @@ const UpcomingSubscriptionCard = ({
   currency,
 }: UpcomingSubscriptionCardProps) => {
   const getDaysLeftText = () => {
-    if (daysLeft > 1) return `${daysLeft} days left`;
-    if (daysLeft === 1) return "Last day!";
-    return "Expired!";
+    if (daysLeft > 1) return `${daysLeft} dias restantes`;
+    if (daysLeft === 1) return "Último dia!";
+    return "Expirada!";
   };
 
   return (

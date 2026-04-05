@@ -1,11 +1,12 @@
 import dayjs from "dayjs";
 
 /**
- * Formats a numeric amount for display using Brazilian currency rules by default and falls back to a simple prefixed format if locale formatting fails.
+ * Formata um valor numérico seguindo o padrão monetário brasileiro por padrão.
+ * Se a formatação por locale falhar, aplica um fallback simples com prefixo.
  *
- * @param value - The numeric amount to format
- * @param currency - ISO 4217 currency code; defaults to `"BRL"`. If fallback occurs, `"BRL"` maps to `"R$ "`, `"USD"` maps to `"$ "`, otherwise the provided code is used as a prefix.
- * @returns The formatted currency string
+ * @param value O valor numérico a ser formatado.
+ * @param currency Código ISO 4217 da moeda. O padrão é `"BRL"`.
+ * @returns O valor formatado para exibição na interface.
  */
 export function formatCurrency(value: number, currency = "BRL") {
   try {
@@ -18,7 +19,11 @@ export function formatCurrency(value: number, currency = "BRL") {
   } catch {
     const normalizedValue = Number.isFinite(value) ? value : 0;
     const currencySymbol =
-      currency === "BRL" ? "R$ " : currency === "USD" ? "$ " : currency + " ";
+      currency === "BRL"
+        ? "R$ "
+        : currency === "USD"
+          ? "US$ "
+          : currency + " ";
     return `${currencySymbol}${normalizedValue.toFixed(2).replace(".", ",")}`;
   }
 }
@@ -48,19 +53,47 @@ export const formatSubscriptionDateTime = (value?: string): string => {
 
 /**
  * Formata um status de assinatura para exibição na interface.
- * Se o valor for indefinido ou vazio, retorna "Unknown".
- * Caso contrário, capitaliza a primeira letra do status e retorna o restante em minúsculas.
+ * Se o valor for indefinido ou vazio, retorna "Não informado".
+ * Também converte valores comuns em inglês para rótulos em pt-BR.
  *
  * Exemplo de uso:
- * const formattedStatus = formatStatusLabel("active");
- * console.log(formattedStatus); // Output: "Active"
+ * const formattedStatus = formatStatusLabel("ativa");
+ * console.log(formattedStatus); // Saída: "Ativa"
  *
- * @param value - A string representando o status da assinatura (ex: "active", "cancelled").
- * @returns Uma string formatada representando o status ou "Unknown" se o valor for indefinido ou vazio.
+ * @param value A string representando o status da assinatura.
+ * @returns Uma string formatada representando o status ou "Não informado".
  */
 export const formatStatusLabel = (value?: string): string => {
-  if (!value) return "Unknown";
-  const firstChar = value.charAt(0).toUpperCase();
-  const rest = value.slice(1).toLowerCase();
-  return firstChar + rest;
+  if (!value) return "Não informado";
+
+  const normalizedValue = value
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "_");
+
+  const statusLabels: Record<string, string> = {
+    active: "Ativa",
+    ativa: "Ativa",
+    paused: "Pausada",
+    pausada: "Pausada",
+    cancelled: "Cancelada",
+    canceled: "Cancelada",
+    cancelada: "Cancelada",
+    expired: "Expirada",
+    expirada: "Expirada",
+    pending: "Pendente",
+    pendente: "Pendente",
+    past_due: "Em atraso",
+    em_atraso: "Em atraso",
+    trialing: "Em teste",
+    em_teste: "Em teste",
+  };
+
+  if (statusLabels[normalizedValue]) {
+    return statusLabels[normalizedValue];
+  }
+
+  return normalizedValue
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase());
 };

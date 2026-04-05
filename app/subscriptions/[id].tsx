@@ -6,8 +6,8 @@ const SubscriptionDetails = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   return (
     <View>
-      <Text>SubscriptionDetails: {id}</Text>
-      <Link href="/">Go back</Link>
+      <Text>Detalhes da assinatura: {id}</Text>
+      <Link href="/">Voltar</Link>
     </View>
   );
 };

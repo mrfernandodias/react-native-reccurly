@@ -5,7 +5,7 @@ import { Text } from "react-native";
 const Insights = () => {
   return (
     <ScreenContainer>
-      <Text>Insights</Text>
+      <Text>Análises</Text>
     </ScreenContainer>
   );
 };
