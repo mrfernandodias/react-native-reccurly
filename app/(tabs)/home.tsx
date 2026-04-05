@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/expo";
 import ListHeading from "@/components/ListHeading";
 import { ScreenContainer } from "@/components/screen-container";
 import SubscriptionCard from "@/components/SubscriptionCard";
@@ -5,7 +6,6 @@ import UpcomingSubscriptionCard from "@/components/UpcomingSubscriptionCard";
 import {
   HOME_BALANCE,
   HOME_SUBSCRIPTIONS,
-  HOME_USER,
   UPCOMING_SUBSCRIPTIONS,
 } from "@/constants/data";
 import { icons } from "@/constants/icons";
@@ -13,22 +13,28 @@ import images from "@/constants/images";
 import { formatCurrency } from "@/lib/utils";
 
 import dayjs from "dayjs";
-import { useState } from "react";
+import type { ImageSourcePropType } from "react-native";
+import { useMemo, useState } from "react";
 
 import { FlatList, Image, Text, View } from "react-native";
 
-const HomeListHeader = () => (
+interface HomeListHeaderProps {
+  userName: string;
+  avatarSource: ImageSourcePropType;
+}
+
+const HomeListHeader = ({ userName, avatarSource }: HomeListHeaderProps) => (
   <>
     <View className="home-header">
       <View className="home-user">
-        <Image source={images.avatar} className="home-avatar" />
-        <Text className="home-user-name">{HOME_USER.name}</Text>
+        <Image source={avatarSource} className="home-avatar" />
+        <Text className="home-user-name">{userName}</Text>
       </View>
       <Image source={icons.add} className="home-add-icon" />
     </View>
 
     <View className="home-balance-card">
-      <Text className="home-balance-label">Balance</Text>
+      <Text className="home-balance-label">Saldo</Text>
       <View className="home-balance-row">
         <Text className="home-balance-amount">
           {formatCurrency(HOME_BALANCE.amount)}
@@ -40,7 +46,7 @@ const HomeListHeader = () => (
     </View>
 
     <View className="mb-5">
-      <ListHeading title="Upcoming" />
+      <ListHeading title="Próximas cobranças" />
 
       <FlatList
         data={UPCOMING_SUBSCRIPTIONS}
@@ -49,22 +55,41 @@ const HomeListHeader = () => (
         horizontal
         showsHorizontalScrollIndicator={false}
         className="home-upcoming-list"
-        ListEmptyComponent={<Text>No upcoming renewals yet. 🙁 </Text>}
+        ListEmptyComponent={<Text>Ainda não há cobranças próximas. 🙁 </Text>}
       />
     </View>
 
-    <ListHeading title="All Subscriptions" />
+    <ListHeading title="Todas as assinaturas" />
   </>
 );
 
-export default function App() {
+export default function Home() {
+  const { user } = useUser();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
+
+  const userName =
+    user?.fullName?.trim() ||
+    user?.firstName?.trim() ||
+    user?.username?.trim() ||
+    user?.primaryEmailAddress?.emailAddress
+      ?.split("@")[0]
+      ?.trim() ||
+    "Sua conta";
+  const avatarSource = useMemo(
+    () => (user?.imageUrl ? { uri: user.imageUrl } : images.avatar),
+    [user?.imageUrl],
+  );
+  const listHeader = useMemo(
+    () => <HomeListHeader userName={userName} avatarSource={avatarSource} />,
+    [avatarSource, userName],
+  );
+
   return (
     <ScreenContainer>
       <FlatList
-        ListHeaderComponent={HomeListHeader}
+        ListHeaderComponent={listHeader}
         data={HOME_SUBSCRIPTIONS}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -81,7 +106,7 @@ export default function App() {
         extraData={expandedSubscriptionId}
         ItemSeparatorComponent={() => <View className="h-4" />}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<Text>No subscriptions yet. 🙁 </Text>}
+        ListEmptyComponent={<Text>Ainda não há assinaturas. 🙁 </Text>}
         contentContainerClassName="pb-20"
       />
     </ScreenContainer>
