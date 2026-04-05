@@ -41,12 +41,15 @@ export default function AuthScreen({
     <SafeAreaView className="auth-safe-area">
       <KeyboardAvoidingView
         className="auth-screen"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 12 : 0}
       >
         <ScrollView
           className="auth-scroll"
           contentContainerClassName="auth-content"
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === "ios" ? "interactive" : "on-drag"}
+          automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
           showsVerticalScrollIndicator={false}
         >
           <Image
