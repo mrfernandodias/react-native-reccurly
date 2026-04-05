@@ -239,63 +239,86 @@
   }
 
   .auth-content {
-    @apply grow px-5 pb-10 pt-8;
+    @apply grow justify-center px-5 pb-10 pt-10;
   }
 
   .auth-brand-block {
-    @apply mt-2 items-center;
+    @apply items-center;
   }
 
   .auth-logo-wrap {
-    @apply mb-7 flex-row items-center gap-3;
+    @apply mb-16 flex-row items-center gap-4;
   }
 
-  .auth-logo-mark {
-    @apply relative size-14 items-center justify-center rounded-2xl bg-accent;
-  }
-
-  .auth-logo-mark-text {
-    @apply text-2xl font-sans-extrabold text-background;
+  .auth-logo-image {
+    @apply size-18 rounded-3xl;
   }
 
   .auth-wordmark {
-    @apply text-3xl font-sans-extrabold text-primary;
+    @apply text-4xl font-sans-extrabold text-primary;
   }
 
   .auth-wordmark-sub {
-    @apply -mt-1 text-xs font-sans-semibold uppercase tracking-[1px] text-muted-foreground;
+    @apply mt-1 text-sm font-sans-semibold uppercase tracking-[1.6px] text-muted-foreground;
   }
 
   .auth-title {
-    @apply text-3xl font-sans-bold text-primary;
+    @apply text-center font-sans-bold text-primary;
+    font-size: 24px;
+    line-height: 26.4px;
+    letter-spacing: -0.48px;
   }
 
   .auth-subtitle {
-    @apply mt-2 max-w-[320px] text-center text-base font-sans-medium text-muted-foreground;
+    @apply mt-4 max-w-full text-center font-sans-medium text-muted-foreground;
+    font-size: 16px;
+    line-height: 22px;
   }
 
   .auth-card {
-    @apply mt-8 rounded-3xl border border-border bg-card p-5;
+    @apply mt-12 w-full self-center rounded-[28px] border border-border bg-card px-6 py-6;
   }
 
   .auth-form {
-    @apply gap-4;
+    @apply gap-5;
   }
 
   .auth-field {
-    @apply gap-2;
+    @apply gap-2.5;
   }
 
   .auth-label {
-    @apply text-sm font-sans-semibold text-primary;
+    @apply text-base font-sans-bold text-primary;
+  }
+
+  .auth-input-shell {
+    background-color: #fff9e3;
+    border-width: 1px;
+    border-color: #c6bfa2;
+    border-radius: 14px;
+    height: 54px;
+    overflow: hidden;
+    justify-content: center;
+  }
+
+  .auth-input-shell-error {
+    border-color: #dc2626;
   }
 
   .auth-input {
-    @apply rounded-2xl border border-border bg-background px-4 py-4 text-base font-sans-medium text-primary;
+    @apply font-sans-medium text-primary;
+    background-color: transparent;
+    border-width: 0px;
+    border-radius: 14px;
+    height: 54px;
+    padding-horizontal: 18px;
+    padding-vertical: 0px;
+    font-size: 16px;
+    line-height: 20px;
   }
 
   .auth-input-error {
-    @apply border-destructive;
+    @apply text-destructive;
   }
 
   .auth-error {
@@ -307,7 +330,7 @@
   }
 
   .auth-button {
-    @apply mt-1 items-center rounded-2xl bg-accent py-4;
+    @apply mt-2 items-center rounded-[24px] bg-accent py-5;
   }
 
   .auth-button-disabled {
@@ -315,7 +338,7 @@
   }
 
   .auth-button-text {
-    @apply text-base font-sans-bold text-primary;
+    @apply text-2xl font-sans-bold text-background;
   }
 
   .auth-secondary-button {
@@ -339,15 +362,15 @@
   }
 
   .auth-link-row {
-    @apply mt-5 flex-row items-center justify-center gap-1;
+    @apply mt-6 flex-row items-center justify-center gap-1;
   }
 
   .auth-link-copy {
-    @apply text-sm font-sans-medium text-muted-foreground;
+    @apply text-lg font-sans-medium text-muted-foreground;
   }
 
   .auth-link {
-    @apply text-sm font-sans-bold text-accent;
+    @apply text-lg font-sans-bold text-accent;
   }
 
   .modal-overlay {

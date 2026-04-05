@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/expo";
 import ListHeading from "@/components/ListHeading";
 import { ScreenContainer } from "@/components/screen-container";
 import SubscriptionCard from "@/components/SubscriptionCard";
@@ -13,22 +14,28 @@ import images from "@/constants/images";
 import { formatCurrency } from "@/lib/utils";
 
 import dayjs from "dayjs";
+import type { ImageSourcePropType } from "react-native";
 import { useState } from "react";
 
 import { FlatList, Image, Text, View } from "react-native";
 
-const HomeListHeader = () => (
+interface HomeListHeaderProps {
+  userName: string;
+  avatarSource: ImageSourcePropType;
+}
+
+const HomeListHeader = ({ userName, avatarSource }: HomeListHeaderProps) => (
   <>
     <View className="home-header">
       <View className="home-user">
-        <Image source={images.avatar} className="home-avatar" />
-        <Text className="home-user-name">{HOME_USER.name}</Text>
+        <Image source={avatarSource} className="home-avatar" />
+        <Text className="home-user-name">{userName}</Text>
       </View>
       <Image source={icons.add} className="home-add-icon" />
     </View>
 
     <View className="home-balance-card">
-      <Text className="home-balance-label">Balance</Text>
+      <Text className="home-balance-label">Saldo</Text>
       <View className="home-balance-row">
         <Text className="home-balance-amount">
           {formatCurrency(HOME_BALANCE.amount)}
@@ -40,7 +47,7 @@ const HomeListHeader = () => (
     </View>
 
     <View className="mb-5">
-      <ListHeading title="Upcoming" />
+      <ListHeading title="Próximas cobranças" />
 
       <FlatList
         data={UPCOMING_SUBSCRIPTIONS}
@@ -49,29 +56,30 @@ const HomeListHeader = () => (
         horizontal
         showsHorizontalScrollIndicator={false}
         className="home-upcoming-list"
-        ListEmptyComponent={<Text>No upcoming renewals yet. 🙁 </Text>}
+        ListEmptyComponent={<Text>Ainda não há cobranças próximas. 🙁 </Text>}
       />
     </View>
 
-    <ListHeading title="All Subscriptions" />
+    <ListHeading title="Todas as assinaturas" />
   </>
 );
 
-/**
- * Render the home subscriptions screen with a header, an upcoming section, and a list of all subscriptions.
- *
- * Maintains which subscription is expanded via internal state and toggles expansion when a subscription is pressed.
- *
- * @returns The rendered React element for the app's home subscriptions screen.
- */
-export default function App() {
+export default function Home() {
+  const { user } = useUser();
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
   >(null);
+
+  const userName =
+    user?.firstName || user?.fullName || user?.username || HOME_USER.name;
+  const avatarSource = user?.imageUrl ? { uri: user.imageUrl } : images.avatar;
+
   return (
     <ScreenContainer>
       <FlatList
-        ListHeaderComponent={HomeListHeader}
+        ListHeaderComponent={() => (
+          <HomeListHeader userName={userName} avatarSource={avatarSource} />
+        )}
         data={HOME_SUBSCRIPTIONS}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
@@ -88,7 +96,7 @@ export default function App() {
         extraData={expandedSubscriptionId}
         ItemSeparatorComponent={() => <View className="h-4" />}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={<Text>No subscriptions yet. 🙁 </Text>}
+        ListEmptyComponent={<Text>Ainda não há assinaturas. 🙁 </Text>}
         contentContainerClassName="pb-20"
       />
     </ScreenContainer>
