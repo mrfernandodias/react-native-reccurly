@@ -380,7 +380,6 @@ export default function SignUp() {
 
   return (
     <AuthScreen
-      kicker="CRIAR CONTA"
       title="Crie sua conta"
       subtitle="Comece a gerenciar suas assinaturas em um só lugar"
       footerCopy="Já usa a Recurrly?"
