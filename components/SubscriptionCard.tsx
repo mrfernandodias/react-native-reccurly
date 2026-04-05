@@ -9,6 +9,7 @@ import { Image, Pressable, Text, View } from "react-native";
 interface SubscriptionCardProps {
   name: string;
   price: number;
+  currency?: string;
   color?: string;
   icon: any;
   billing: string;
@@ -25,6 +26,7 @@ interface SubscriptionCardProps {
 const SubscriptionCard = ({
   name,
   price,
+  currency,
   color,
   icon,
   billing,
@@ -59,7 +61,9 @@ const SubscriptionCard = ({
           </View>
         </View>
         <View className="sub-price-box">
-          <Text className="sub-price">{formatCurrency(price)}</Text>
+          <Text className="sub-price">
+            {formatCurrency(price, currency ?? "BRL")}
+          </Text>
           <Text className="sub-billing">{billing}</Text>
         </View>
       </View>
