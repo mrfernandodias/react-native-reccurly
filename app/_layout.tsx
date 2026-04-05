@@ -1,11 +1,10 @@
 import "@/global.css";
-import AuthLoadingScreen from "@/components/AuthLoadingScreen";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
 import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, Text, View } from "react-native";
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -60,10 +59,21 @@ export default function RootLayout() {
 
   if (!fontsLoaded) {
     return (
-      <AuthLoadingScreen
-        stage="fonts"
-        message="Carregando recursos do app..."
-      />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          paddingHorizontal: 24,
+          backgroundColor: "#fff9e3",
+          gap: 16,
+        }}
+      >
+        <ActivityIndicator size="large" color="#ea7a53" />
+        <Text style={{ fontSize: 16, textAlign: "center", color: "#59554e" }}>
+          Carregando recursos do app...
+        </Text>
+      </View>
     );
   }
 
