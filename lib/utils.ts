@@ -1,8 +1,11 @@
 import dayjs from "dayjs";
 
 /**
- * Formata um valor monetário para exibição na interface.
- * Usa o padrão brasileiro por padrão e faz fallback manual se a formatação falhar.
+ * Formats a numeric amount for display using Brazilian currency rules by default and falls back to a simple prefixed format if locale formatting fails.
+ *
+ * @param value - The numeric amount to format
+ * @param currency - ISO 4217 currency code; defaults to `"BRL"`. If fallback occurs, `"BRL"` maps to `"R$ "`, `"USD"` maps to `"$ "`, otherwise the provided code is used as a prefix.
+ * @returns The formatted currency string
  */
 export function formatCurrency(value: number, currency = "BRL") {
   try {

@@ -57,6 +57,13 @@ const HomeListHeader = () => (
   </>
 );
 
+/**
+ * Render the home subscriptions screen with a header, an upcoming section, and a list of all subscriptions.
+ *
+ * Maintains which subscription is expanded via internal state and toggles expansion when a subscription is pressed.
+ *
+ * @returns The rendered React element for the app's home subscriptions screen.
+ */
 export default function App() {
   const [expandedSubscriptionId, setExpandedSubscriptionId] = useState<
     string | null
