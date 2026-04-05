@@ -1,3 +1,4 @@
+import AuthPasswordField from "@/components/AuthPasswordField";
 import AuthScreen from "@/components/AuthScreen";
 import { colors } from "@/constants/theme";
 import {
@@ -423,38 +424,18 @@ export default function SignIn() {
           ) : null}
         </View>
 
-        <View className="auth-field">
-          <Text className="auth-label">Senha</Text>
-          <View
-            className={clsx(
-              "auth-input-shell",
-              fieldErrors.password && "auth-input-shell-error",
-            )}
-          >
-            <TextInput
-              className={clsx(
-                "auth-input",
-                fieldErrors.password && "auth-input-error",
-              )}
-              value={password}
-              onChangeText={(value) => {
-                setPassword(value);
-                clearFieldError("password");
-              }}
-              placeholder="Digite sua senha"
-              placeholderTextColor={colors.mutedForeground}
-              secureTextEntry
-              autoComplete="password"
-              textContentType="password"
-              underlineColorAndroid="transparent"
-              selectionColor={colors.primary}
-              cursorColor={colors.primary}
-            />
-          </View>
-          {fieldErrors.password ? (
-            <Text className="auth-error">{fieldErrors.password}</Text>
-          ) : null}
-        </View>
+        <AuthPasswordField
+          label="Senha"
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            clearFieldError("password");
+          }}
+          placeholder="Digite sua senha"
+          errorMessage={fieldErrors.password}
+          autoComplete="password"
+          textContentType="password"
+        />
 
         {generalError ? <Text className="auth-error">{generalError}</Text> : null}
 

@@ -1,3 +1,4 @@
+import AuthPasswordField from "@/components/AuthPasswordField";
 import AuthScreen from "@/components/AuthScreen";
 import { colors } from "@/constants/theme";
 import {
@@ -435,71 +436,31 @@ export default function SignUp() {
           ) : null}
         </View>
 
-        <View className="auth-field">
-          <Text className="auth-label">Senha</Text>
-          <View
-            className={clsx(
-              "auth-input-shell",
-              fieldErrors.password && "auth-input-shell-error",
-            )}
-          >
-            <TextInput
-              className={clsx(
-                "auth-input",
-                fieldErrors.password && "auth-input-error",
-              )}
-              value={password}
-              onChangeText={(value) => {
-                setPassword(value);
-                clearFieldError("password");
-              }}
-              placeholder="Digite sua senha"
-              placeholderTextColor={colors.mutedForeground}
-              secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
-              underlineColorAndroid="transparent"
-              selectionColor={colors.primary}
-              cursorColor={colors.primary}
-            />
-          </View>
-          {fieldErrors.password ? (
-            <Text className="auth-error">{fieldErrors.password}</Text>
-          ) : null}
-        </View>
+        <AuthPasswordField
+          label="Senha"
+          value={password}
+          onChangeText={(value) => {
+            setPassword(value);
+            clearFieldError("password");
+          }}
+          placeholder="Digite sua senha"
+          errorMessage={fieldErrors.password}
+          autoComplete="new-password"
+          textContentType="newPassword"
+        />
 
-        <View className="auth-field">
-          <Text className="auth-label">Confirmar senha</Text>
-          <View
-            className={clsx(
-              "auth-input-shell",
-              fieldErrors.confirmPassword && "auth-input-shell-error",
-            )}
-          >
-            <TextInput
-              className={clsx(
-                "auth-input",
-                fieldErrors.confirmPassword && "auth-input-error",
-              )}
-              value={confirmPassword}
-              onChangeText={(value) => {
-                setConfirmPassword(value);
-                clearFieldError("confirmPassword");
-              }}
-              placeholder="Confirme sua senha"
-              placeholderTextColor={colors.mutedForeground}
-              secureTextEntry
-              autoComplete="new-password"
-              textContentType="newPassword"
-              underlineColorAndroid="transparent"
-              selectionColor={colors.primary}
-              cursorColor={colors.primary}
-            />
-          </View>
-          {fieldErrors.confirmPassword ? (
-            <Text className="auth-error">{fieldErrors.confirmPassword}</Text>
-          ) : null}
-        </View>
+        <AuthPasswordField
+          label="Confirmar senha"
+          value={confirmPassword}
+          onChangeText={(value) => {
+            setConfirmPassword(value);
+            clearFieldError("confirmPassword");
+          }}
+          placeholder="Confirme sua senha"
+          errorMessage={fieldErrors.confirmPassword}
+          autoComplete="new-password"
+          textContentType="newPassword"
+        />
 
         {generalError ? (
           <Text className="auth-error">{generalError}</Text>

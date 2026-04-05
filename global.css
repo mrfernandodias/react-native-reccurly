@@ -347,6 +347,10 @@
     justify-content: center;
   }
 
+  .auth-input-row {
+    @apply flex-row items-center;
+  }
+
   .auth-input-shell-error {
     border-color: #dc2626;
   }
@@ -361,6 +365,18 @@
     padding-vertical: 0px;
     font-size: 16px;
     line-height: 20px;
+  }
+
+  .auth-input-field {
+    @apply flex-1;
+  }
+
+  .auth-input-action {
+    @apply h-full items-center justify-center px-4;
+  }
+
+  .auth-input-action-text {
+    @apply text-sm font-sans-semibold text-accent;
   }
 
   .auth-input-error {
