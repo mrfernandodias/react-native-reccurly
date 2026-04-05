@@ -1,4 +1,5 @@
 import "@/global.css";
+import { SubscriptionsProvider } from "@/contexts/subscriptions-context";
 import { ClerkProvider } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
@@ -104,7 +105,9 @@ export default function RootLayout() {
           propsToCapture: ["testID"],
         }}
       >
-        <Slot />
+        <SubscriptionsProvider>
+          <Slot />
+        </SubscriptionsProvider>
       </PostHogProvider>
     </ClerkProvider>
   );
